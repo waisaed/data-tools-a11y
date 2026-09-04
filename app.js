@@ -15,6 +15,7 @@
     types: {},         // type id -> bool (multi-select; a tool can be several)
     features: {},      // feature id -> bool
     presetSources: {}, // feature id -> [type labels that pre-checked it]
+    userSet: {},       // feature id -> bool, only for features the user set by hand
     includeNew: true   // include the four criteria added in WCAG 2.2
   };
   Object.keys(DATA.types).forEach(function (t) { state.types[t] = (t === "chart"); });
@@ -73,15 +74,22 @@
     var tWrap = $("#type-choices");
     tWrap.innerHTML = "";
     Object.keys(DATA.types).forEach(function (key) {
-      tWrap.appendChild(
-        buildChoiceCard("checkbox", "type", key, DATA.types[key].label,
-        DATA.types[key].note, !!state.types[key])
-      );
+      var card = buildChoiceCard("checkbox", "type", key, DATA.types[key].label,
+        DATA.types[key].note, !!state.types[key]);
+      card.querySelector("input").addEventListener("change", function (e) {
+        var before = {};
+        DATA.features.forEach(function (f) { before[f.id] = state.features[f.id]; });
+        state.types[key] = e.target.checked;
+        recomputePreset();
+        renderFeatures();
+        announceInventoryChange(DATA.types[key].label, before);
+      });
+      tWrap.appendChild(card);
     });
   }
 
-  // ---- STEP 2: render feature toggles --------------------------------
-  function renderStep2() {
+  // ---- feature inventory (lives on page 1, under the frame questions) ----
+  function renderFeatures() {
     var list = $("#feature-list");
     list.innerHTML = "";
     DATA.features.forEach(function (f) {
@@ -114,6 +122,13 @@
           })
         )));
       }
+
+      // A hand-toggled feature is an override: it survives later type changes,
+      // in either direction, until the user clears it themselves.
+      input.addEventListener("change", function (e) {
+        state.features[f.id] = e.target.checked;
+        state.userSet[f.id] = e.target.checked;
+      });
 
       var item = el("li", { class: "feature-item" }, [
         el("label", { class: "toggle", for: id }, [
@@ -189,8 +204,8 @@
     return el("span", { class: "owner " + m.cls, text: m.text });
   }
 
-  // ---- STEP 3: render output -----------------------------------------
-  function renderStep3() {
+  // ---- page 2: render output -----------------------------------------
+  function renderResults() {
     var items = collectCriteria();
     var plat = DATA.platforms[state.platform];
 
@@ -206,7 +221,7 @@
       ]));
     }
 
-    $("#s3-h").textContent = "Your WCAG " + (state.includeNew ? "2.2" : "2.1") + " AA obligations";
+    $("#s2-h").textContent = "Your WCAG " + (state.includeNew ? "2.2" : "2.1") + " AA obligations";
 
     // summary
     var activeFeatures = DATA.features.filter(function (f) { return state.features[f.id]; })
@@ -277,7 +292,7 @@
 
   // ---- navigation ----------------------------------------------------
   function showStep(n) {
-    [1, 2, 3].forEach(function (i) {
+    [1, 2].forEach(function (i) {
       $("#step-" + i).hidden = (i !== n);
     });
     // progress indicator
@@ -295,17 +310,34 @@
   function readStep1() {
     var p = document.querySelector('input[name="platform"]:checked');
     if (p) state.platform = p.value;
-    document.querySelectorAll('#type-choices input[type="checkbox"]').forEach(function (cb) {
-      state.types[cb.value] = cb.checked;
-    });
     state.includeNew = $("#include-22").checked;
   }
 
-  function applyTypePreset() {
-    // pre-check the union of features suggested by every chosen type,
-    // so a chart+map dashboard pre-loads both sets.
-    // Remember which types contributed each pre-check, so step 2 can say why
-    // an item arrived switched on rather than just presenting it as a given.
+  // The inventory sits on the same page as the type checkboxes, so the preset
+  // is recomputed live rather than applied once on a page transition. It is
+  // derived, never accumulated: the union of every ticked type's features,
+  // with the user's own toggles layered on top. That makes unticking a type
+  // withdraw exactly what it contributed and nothing a second type still
+  // claims, and it means an explicit choice is never silently overwritten.
+  // Ticking a type rewrites the inventory further down the page. Nothing marks
+  // that visually — the chips under each feature carry it — so the change is
+  // announced into a visually hidden live region (4.1.3), the criterion this
+  // page puts in everyone's baseline list.
+  function announceInventoryChange(typeLabel, before) {
+    var added = [], removed = [];
+    DATA.features.forEach(function (f) {
+      if (state.features[f.id] && !before[f.id]) added.push(f.label.toLowerCase());
+      if (!state.features[f.id] && before[f.id]) removed.push(f.label.toLowerCase());
+    });
+    var parts = [];
+    if (added.length) parts.push("added " + added.join(", "));
+    if (removed.length) parts.push("removed " + removed.join(", "));
+    $("#feature-status").textContent = parts.length
+      ? typeLabel + " " + parts.join("; ") + "."
+      : typeLabel + " changed nothing — your inventory already covered it.";
+  }
+
+  function recomputePreset() {
     var pre = {};
     Object.keys(DATA.types).forEach(function (t) {
       if (state.types[t]) (DATA.types[t].pre || []).forEach(function (fid) {
@@ -313,40 +345,25 @@
       });
     });
     state.presetSources = pre;
-    DATA.features.forEach(function (f) { state.features[f.id] = !!pre[f.id]; });
-  }
-
-  function readStep2() {
-    document.querySelectorAll('#feature-list input[type="checkbox"]').forEach(function (cb) {
-      state.features[cb.value] = cb.checked;
+    DATA.features.forEach(function (f) {
+      state.features[f.id] = (f.id in state.userSet) ? state.userSet[f.id] : !!pre[f.id];
     });
   }
 
   // ---- wire up --------------------------------------------------------
   function init() {
     renderStep1();
+    recomputePreset();  // the default type is ticked, so its features are too
+    renderFeatures();
 
     $("#to-step-2").addEventListener("click", function () {
       readStep1();
-      applyTypePreset();
-      renderStep2();
+      renderResults();
       showStep(2);
     });
 
     $("#back-to-1").addEventListener("click", function () {
-      readStep2();
       showStep(1);
-    });
-
-    $("#to-step-3").addEventListener("click", function () {
-      readStep2();
-      renderStep3();
-      showStep(3);
-    });
-
-    $("#back-to-2").addEventListener("click", function () {
-      renderStep2();
-      showStep(2);
     });
 
     $("#print-btn").addEventListener("click", function () { window.print(); });
@@ -354,11 +371,13 @@
     $("#restart-btn").addEventListener("click", function () {
       state.platform = "building";
       Object.keys(DATA.types).forEach(function (t) { state.types[t] = (t === "chart"); });
-      DATA.features.forEach(function (f) { state.features[f.id] = false; });
-      state.presetSources = {};
+      state.userSet = {};
       state.includeNew = true;
       $("#include-22").checked = true;
+      $("#feature-status").textContent = "";
       renderStep1();
+      recomputePreset();
+      renderFeatures();
       showStep(1);
     });
   }

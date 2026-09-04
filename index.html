@@ -27,15 +27,14 @@
     <!-- progress -->
     <nav class="steps" aria-label="Progress">
       <ol>
-        <li data-step="1" aria-current="step"><span class="num">1</span> Frame</li>
-        <li data-step="2"><span class="num">2</span> Features</li>
-        <li data-step="3"><span class="num">3</span> Your list</li>
+        <li data-step="1" aria-current="step"><span class="num">1</span> Describe your tool</li>
+        <li data-step="2"><span class="num">2</span> Your list</li>
       </ol>
     </nav>
 
-    <!-- STEP 1: FRAME -->
+    <!-- STEP 1: FRAME + FEATURE INVENTORY -->
     <section id="step-1" class="step-panel" aria-labelledby="s1-h" tabindex="-1">
-      <h2 id="s1-h">Frame the project</h2>
+      <h2 id="s1-h">Describe your tool</h2>
 
       <fieldset class="q">
         <legend>1. What are you building it in?</legend>
@@ -77,32 +76,28 @@
         </ul>
       </fieldset>
 
+      <fieldset class="q">
+        <legend>4. What does it do? Toggle on everything that applies.</legend>
+        <p class="q-help">
+          Your answers above switch on the features most likely to be relevant; correct them
+          here. Each feature you confirm unlocks a small module of criteria, and everything you
+          leave off stays out of your list.
+        </p>
+        <p class="vh" id="feature-status" role="status"></p>
+        <ul class="feature-list" id="feature-list"></ul>
+      </fieldset>
+
       <div class="actions">
-        <button type="button" class="btn primary" id="to-step-2">Continue to features</button>
+        <button type="button" class="btn primary" id="to-step-2">See my list</button>
       </div>
     </section>
 
-    <!-- STEP 2: FEATURES -->
+    <!-- STEP 2: OUTPUT -->
     <section id="step-2" class="step-panel" aria-labelledby="s2-h" tabindex="-1" hidden>
-      <h2 id="s2-h">Feature inventory</h2>
-      <p class="section-intro">
-        Toggle on everything your tool does. Each feature you confirm unlocks a small module of
-        criteria. Everything you leave off stays out of your list.
-      </p>
-      <ul class="feature-list" id="feature-list"></ul>
-
-      <div class="actions">
-        <button type="button" class="btn ghost" id="back-to-1">Back</button>
-        <button type="button" class="btn primary" id="to-step-3">See my list</button>
-      </div>
-    </section>
-
-    <!-- STEP 3: OUTPUT -->
-    <section id="step-3" class="step-panel" aria-labelledby="s3-h" tabindex="-1" hidden>
       <div class="result-head">
-        <h2 id="s3-h">Your WCAG 2.2 AA obligations</h2>
+        <h2 id="s2-h">Your WCAG 2.2 AA obligations</h2>
         <div class="result-tools no-print">
-          <button type="button" class="btn ghost" id="back-to-2">Back to features</button>
+          <button type="button" class="btn ghost" id="back-to-1">Back to your answers</button>
           <button type="button" class="btn" id="print-btn">Print / save as PDF</button>
           <button type="button" class="btn" id="restart-btn">Start over</button>
         </div>
