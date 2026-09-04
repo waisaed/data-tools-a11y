@@ -10,3 +10,5 @@ A tool for narrowing the WCAG success criteria relevant to interactive data tool
 Pure HTML/javascript, just open index.html in the browser or serve as you like.
 
 Made with the [OCELOTS data tools how-to forum](https://qubeshub.org/community/groups/ocelots/data-tools-how-to) in mind.
+
+Try live at https://waisaed.github.io/data-tools-a11y/
