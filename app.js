@@ -209,17 +209,32 @@
     var items = collectCriteria();
     var plat = DATA.platforms[state.platform];
 
-    // platform note
+    // platform note: framing, then what you own, what bites you here, and
+    // where the vendor documents its own conformance.
     var note = $("#platform-note");
     note.innerHTML = "";
     note.appendChild(el("h2", { text: plat.label }));
     note.appendChild(el("p", { text: plat.note }));
-    if (plat.vpat) {
-      note.appendChild(el("p", { class: "vpat" }, [
-        "Vendor accessibility report: ",
-        el("a", { href: plat.vpat, target: "_blank", rel: "noopener", text: plat.vpat })
-      ]));
+
+    function bullets(title, items, build) {
+      if (!items || !items.length) return;
+      note.appendChild(el("h3", { text: title }));
+      var ul = el("ul", { class: "plat-list" });
+      items.forEach(function (item) { ul.appendChild(build(item)); });
+      note.appendChild(ul);
     }
+
+    bullets("What you are responsible for", plat.responsibilities, function (t) {
+      return el("li", { text: t });
+    });
+    bullets("Gotchas specific to " + plat.label, plat.gotchas, function (t) {
+      return el("li", { text: t });
+    });
+    bullets("Vendor accessibility documentation", plat.links, function (l) {
+      return el("li", null, [
+        el("a", { href: l.url, target: "_blank", rel: "noopener", text: l.label })
+      ]);
+    });
 
     $("#s2-h").textContent = "Your WCAG " + (state.includeNew ? "2.2" : "2.1") + " AA obligations";
 

@@ -337,8 +337,10 @@ window.A11Y_DATA = {
 
   // ---- platform presets for the using-vs-building split ----------------
   // `custom: true` means the author owns conformance end-to-end (no vendor
-  // split, no report link). Otherwise a vendor handles a share and `vpat`
-  // points to their accessibility conformance report.
+  // split). Every platform carries the three things a reader needs on the
+  // results page: what they own (`responsibilities`), what bites them
+  // specifically here (`gotchas`), and where the vendor documents its own
+  // conformance (`links`).
   //
   // `owners` re-assigns individual criteria for that platform, overriding the
   // criterion's default `owner`. Only list a criterion the platform genuinely
@@ -348,13 +350,41 @@ window.A11Y_DATA = {
     building: {
       label: "Building something custom",
       custom: true,
-      note: "You own the technical conformance end-to-end. Custom D3 / Leaflet / React widgets fail hardest on keyboard operation, focus, and non-visual alternatives — the manual-testing items below are non-negotiable.",
-      vpat: null
+      note: "You own the technical conformance end-to-end. There is no vendor share to fall back on, and the manual-testing items below are non-negotiable.",
+      responsibilities: [
+        "Keyboard operation of every custom control — sliders, brushes, zoom, tooltips, legends.",
+        "A visible focus indicator on those controls, and a focus order that follows the narrative.",
+        "Text alternatives that convey each visual's finding, plus the underlying data as a table.",
+        "A non-drag path to anything draggable, and targets large enough to hit.",
+        "Announcing asynchronous updates, so a filtered chart does not change in silence."
+      ],
+      gotchas: [
+        "SVG is invisible to assistive tech by default: shapes carry no name or role until you give them one.",
+        "Canvas and WebGL have no DOM at all, so anything drawn there needs an accessible equivalent built alongside it.",
+        "Handlers bound only to mouse events leave keyboard and touch users with nothing.",
+        "A tooltip that appears on hover but not on focus is unreachable, and one that vanishes on pointer-out cannot be read."
+      ],
+      links: []
     },
     arcgis: {
       label: "ArcGIS StoryMaps",
-      note: "Esri handles most technical conformance. You still own: alt text on media, narrative prose and headings, color choices in your maps, and reading order of your blocks.",
-      vpat: "https://www.esri.com/en-us/legal/accessibility/conformance-reports",
+      note: "Esri handles most technical conformance — the template chrome, media player and map widgets are theirs. Your share is what you pour into them.",
+      responsibilities: [
+        "Alt text on every media block. The field exists, and it is commonly left blank.",
+        "Narrative prose, heading levels, and descriptive link text.",
+        "Color choices in your maps and graphics, including anything encoded by color alone.",
+        "The order of your blocks, which is the reading order for everyone.",
+        "Captions and transcripts for media you embed."
+      ],
+      gotchas: [
+        "Reordering blocks visually reorders them semantically — the sequence you see is the sequence a screen reader gets.",
+        "Sidecar and slide blocks reveal content as the reader scrolls, so anything conveyed only by that motion needs a static equivalent.",
+        "A map legend that separates regions by hue alone fails no matter how well Esri built the widget."
+      ],
+      links: [
+        { label: "Esri accessibility conformance reports (VPAT)",
+          url: "https://www.esri.com/en-us/legal/accessibility/conformance-reports" }
+      ],
       // Esri builds and ships the template chrome, media player and map
       // widgets; you only pour content into them.
       owners: {
@@ -370,25 +400,74 @@ window.A11Y_DATA = {
     observable: {
       label: "Observable",
       custom: true,
-      note: "Observable renders your code, so conformance is largely yours as the author — treat it closer to a custom build for the interactive parts, plus your content choices.",
-      vpat: null
+      note: "Observable renders your code, so treat the interactive cells as a custom build. Only the platform's own chrome is Observable's.",
+      responsibilities: [
+        "Everything a custom build owns, for every cell you write: keyboard operation, focus, names and roles.",
+        "Text alternatives for chart cells, and access to the data behind them.",
+        "Heading structure and prose in your markdown cells."
+      ],
+      gotchas: [
+        "Plot and D3 output is SVG — give the figure a name and a description rather than relying on the visual.",
+        "Cells evaluate reactively but publish in document order, so the order a reader meets them is the page order, not the dependency graph.",
+        "A notebook embedded elsewhere in an iframe needs that frame titled."
+      ],
+      links: []
     },
     notebooks: {
       label: "Jupyter Notebooks",
       custom: true,
-      note: "You author the code and its output, so treat rendered and interactive cells like a custom build. You own: alt text on plots, markdown heading structure, color choices, and keeping any ipywidgets keyboard-operable and labeled. Exported HTML also needs its reading order to match your narrative.",
-      vpat: null
+      note: "You author the code and its output, so treat rendered and interactive cells like a custom build.",
+      responsibilities: [
+        "Alt text on every plot, conveying the finding rather than the chart type.",
+        "Markdown heading levels that describe structure, not text size.",
+        "Color choices in your figures.",
+        "Keeping any ipywidgets labeled and keyboard-operable.",
+        "Reading order of the exported HTML matching your narrative."
+      ],
+      gotchas: [
+        "Exported figures land as images with no alt text unless you supply it, and a caption underneath is not a substitute.",
+        "Heading levels get chosen for how big the text looks, which silently breaks the document outline.",
+        "Cells can be run out of order, so the narrative a reader follows may not be the one you tested.",
+        "Code cells capture Tab, trapping keyboard users inside the editor."
+      ],
+      links: []
     },
     rshiny: {
       label: "R Shiny",
       custom: true,
-      note: "Shiny gives you input widgets with some built-in semantics, but the app's accessibility is largely yours as the author. You own: input labels and instructions, color choices, plot alt text (and offering the data as a table), keyboard operation of custom outputs, and announcing reactive updates.",
-      vpat: null
+      note: "Shiny gives you input widgets with some built-in semantics, but the app's accessibility is largely yours as the author.",
+      responsibilities: [
+        "Labels and instructions on every input, including ones you build yourself.",
+        "Alt text on plots, and the option to read the same data as a table.",
+        "Color choices in plots and themes.",
+        "Keyboard operation of any custom output.",
+        "Announcing reactive updates, so a recomputed value is not silent."
+      ],
+      gotchas: [
+        "Plot outputs render as bitmaps: the text alternative has to be supplied explicitly, since nothing is inferred from the plotting code.",
+        "Reactive outputs re-render without announcement — the numbers change and a screen-reader user is never told.",
+        "Widgets from other libraries (plotly, leaflet, DT) inherit that library's accessibility, not Shiny's."
+      ],
+      links: []
     },
     quarto: {
       label: "Quarto",
-      note: "Quarto generates semantic HTML with strong structural defaults (headings, reflow, real tables). You still own: alt text conveying each figure's finding, color choices, descriptive titles and labels, and captions or transcripts on embedded media.",
-      vpat: "https://quarto.org/docs/output-formats/html-accessibility.html",
+      note: "Quarto generates semantic HTML with strong structural defaults — headings, reflow, real tables. Its share is small: everything inside a figure or a code cell is still yours.",
+      responsibilities: [
+        "Alt text conveying each figure's finding — the fig-alt option, not the caption.",
+        "Color choices in figures and in any custom theme.",
+        "Descriptive titles, labels, and link text.",
+        "Captions or transcripts for embedded media."
+      ],
+      gotchas: [
+        "fig-cap is a caption, not a text alternative: a figure with only a caption still has no alt text.",
+        "The sticky navbar and table of contents can cover a focused element as you tab down a long page.",
+        "Interactive output you embed — OJS cells, plotly, htmlwidgets — sits outside what Quarto's HTML defaults cover."
+      ],
+      links: [
+        { label: "Quarto HTML accessibility documentation",
+          url: "https://quarto.org/docs/output-formats/html-accessibility.html" }
+      ],
       // Quarto only ships the theme and the HTML it generates, so its share is
       // small: everything inside a figure or a code cell is still yours.
       owners: {
@@ -398,8 +477,20 @@ window.A11Y_DATA = {
     leaflet: {
       label: "Leaflet",
       custom: true,
-      note: "Leaflet is a mapping library, so the map is a custom build and its conformance is yours. Maps fail hardest here: you own keyboard pan/zoom, adequately sized markers and controls, a non-drag alternative, and a text or tabular equivalent of what the map conveys.",
-      vpat: null
+      note: "Leaflet is a mapping library, so the map is a custom build and its conformance is yours. Maps fail hardest of all the tools here.",
+      responsibilities: [
+        "A text or tabular equivalent of whatever the map conveys.",
+        "Keyboard access to pan, zoom, and every marker a mouse user can reach.",
+        "Markers and controls large enough to hit, and a non-drag way to do anything draggable.",
+        "Color choices in choropleths and marker symbology."
+      ],
+      gotchas: [
+        "Tile layers convey nothing to assistive tech: without a text equivalent the map is an empty box.",
+        "Popups open as ordinary divs — focus is not moved into them and not returned, so keyboard users get stranded.",
+        "circleMarker radii are routinely set well below the 24 by 24 CSS pixel minimum.",
+        "Panning is a drag by default, so it needs a keyboard or button alternative."
+      ],
+      links: []
     }
   }
 };

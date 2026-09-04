@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WCAG 2.2 AA Triage for Interactive Data Tools</title>
-  <meta name="description" content="A feature-gated self-assessment tool: tell it what your interactive data tool does, and get back the small, relevant subset of WCAG 2.2 Level AA criteria — in data-visualization language.">
+  <title>Accessibility Triage for Interactive Data Tools</title>
+  <meta name="description"
+    content="A feature-gated self-assessment tool: tell it what your interactive data tool does, and get back the small, relevant subset of WCAG 2.2 Level AA criteria — in data-visualization language.">
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
     <div class="wrap">
-      <p class="kicker">Self-assessment · WCAG 2.2 Level AA</p>
       <h1>Accessibility Triage for Interactive Data Tools</h1>
       <p class="lede">
-        Charts, dashboards, maps, modeling widgets, and scrollytelling narratives.
-        Answer a short feature inventory and get back only the AA success criteria that
-        actually apply — translated into data-visualization terms and prioritized.
+        Answer a short feature inventory to highlight the WCAG success criteria that
+        actually apply to your tool.
       </p>
     </div>
   </header>
@@ -37,26 +38,14 @@
       <h2 id="s1-h">Describe your tool</h2>
 
       <fieldset class="q">
-        <legend>1. What are you building it in?</legend>
-        <p class="q-help">
-          How much shifts to the vendor depends enormously on which one. A hosted builder like
-          ArcGIS StoryMaps settles about half the technical criteria for you. A library or
-          notebook — Leaflet, Jupyter, R Shiny, Observable — leaves nearly all of them yours,
-          because you are the one writing the interface. Your answer doesn't shorten the list
-          below; it labels who owns each item, and "shared" still means you are the one who
-          verifies it.
-        </p>
-        <div class="radio-grid" id="platform-choices" role="radiogroup" aria-label="Platform"></div>
-      </fieldset>
-
-      <fieldset class="q">
-        <legend>2. What kind of tool is it? Select all that apply.</legend>
-        <p class="q-help">Many tools are several at once — a dashboard with an embedded map, or a scrollytelling story built around charts. This pre-selects the feature modules most likely to be relevant; you can change any of them next.</p>
+        <legend>1. What kind of tool is it? Select all that apply.</legend>
+        <p class="q-help">Many tools are several at once. This switches on the feature modules most likely to be relevant; you can correct any of
+          them in question 3 below.</p>
         <div class="radio-grid" id="type-choices" role="group" aria-label="Type — select all that apply"></div>
       </fieldset>
 
       <fieldset class="q">
-        <legend>3. Which version of WCAG are you working to?</legend>
+        <legend>2. Which version of WCAG are you working to?</legend>
         <p class="q-help">
           WCAG 2.2 adds four criteria, and all four bear directly on interactive data tools.
           Leave this on unless the policy you answer to still names 2.1 — some procurement
@@ -65,11 +54,11 @@
         <ul class="feature-list">
           <li class="feature-item">
             <label class="toggle" for="include-22">
-              <input type="checkbox" id="include-22" checked
-                     aria-labelledby="include-22-label" aria-describedby="include-22-hint">
+              <input type="checkbox" id="include-22" checked aria-labelledby="include-22-label"
+                aria-describedby="include-22-hint">
               <span class="toggle-text">
                 <span class="toggle-label" id="include-22-label">Include criteria new in WCAG 2.2</span>
-                <span class="toggle-hint" id="include-22-hint">Focus Not Obscured, Dragging Movements, Target Size, and Redundant Entry. Untick to scope the list to WCAG 2.1.</span>
+                <span class="toggle-hint" id="include-22-hint">Untick to scope the list to WCAG 2.1.</span>
               </span>
             </label>
           </li>
@@ -85,6 +74,15 @@
         </p>
         <p class="vh" id="feature-status" role="status"></p>
         <ul class="feature-list" id="feature-list"></ul>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend>3. What are you building it in?</legend>
+        <p class="q-help">
+          Your answer doesn't shorten the list of obligation but it does label who owns each item, and gives you a list
+          of common gotchas.
+        </p>
+        <div class="radio-grid" id="platform-choices" role="radiogroup" aria-label="Platform"></div>
       </fieldset>
 
       <div class="actions">
@@ -110,14 +108,10 @@
       <div id="result-groups"></div>
 
       <aside class="callout limitation" aria-labelledby="lim-h">
-        <h2 id="lim-h">What this list does and doesn't do</h2>
+        <h2 id="lim-h">About this list</h2>
         <p>
-          This tool scopes <strong>which</strong> criteria apply to your tool. It does
-          <strong>not</strong> certify conformance. Conformance still requires human testing —
-          a keyboard walkthrough and a screen-reader pass — because automated scanners catch only
-          about a third of issues, and the hardest parts of interactive data tools
-          (focus management, meaningful alternatives, drag alternatives) are exactly the parts a
-          scanner cannot judge.
+          This tool scopes which criteria apply to your tool, based on your responses. It cannot certify conformance. Conformance still requires human testing because automated scanners catch only
+          about a third of issues.
         </p>
       </aside>
     </section>
@@ -135,4 +129,5 @@
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
