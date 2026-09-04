@@ -12,8 +12,9 @@
   // ---- app state ------------------------------------------------------
   var state = {
     platform: "building",
-    types: {},    // type id -> bool (multi-select; a tool can be several)
-    features: {}  // feature id -> bool
+    types: {},         // type id -> bool (multi-select; a tool can be several)
+    features: {},      // feature id -> bool
+    presetSources: {}  // feature id -> [type labels that pre-checked it]
   };
   Object.keys(DATA.types).forEach(function (t) { state.types[t] = (t === "chart"); });
   DATA.features.forEach(function (f) { state.features[f.id] = false; });
@@ -37,17 +38,24 @@
   // ---- STEP 1: render frame choices ----------------------------------
   // inputType is "radio" (single-select, e.g. platform) or "checkbox"
   // (multi-select, e.g. type — a tool can be a chart AND a map AND a story).
+  //
+  // The whole card is a <label> so any click on it toggles the control, but
+  // that would fold the supporting note into the control's accessible name
+  // ("Computational notebook Students run or edit code cells, checkbox").
+  // aria-labelledby pins the name to the label text alone; the note is
+  // announced as a description instead (4.1.2).
   function buildChoiceCard(inputType, group, value, label, note, checked) {
     var id = group + "-" + value;
-    var attrs = { type: inputType, id: id, value: value };
+    var attrs = { type: inputType, id: id, value: value, "aria-labelledby": id + "-label" };
     if (inputType === "radio") attrs.name = group;
+    if (note) attrs["aria-describedby"] = id + "-note";
     var input = el("input", attrs);
     if (checked) input.checked = true;
     var card = el("label", { class: "radio-card", for: id }, [
       input,
       el("span", { class: "radio-card-body" }, [
-        el("span", { class: "radio-card-label", text: label })
-      ].concat(note ? [el("span", { class: "radio-card-note", text: note })] : []))
+        el("span", { class: "radio-card-label", id: id + "-label", text: label })
+      ].concat(note ? [el("span", { class: "radio-card-note", id: id + "-note", text: note })] : []))
     ]);
     return card;
   }
@@ -77,15 +85,39 @@
     list.innerHTML = "";
     DATA.features.forEach(function (f) {
       var id = "feat-" + f.id;
-      var input = el("input", { type: "checkbox", id: id, value: f.id });
+      var why = state.presetSources[f.id];
+
+      // name = the feature label; hint and preset reason are descriptions.
+      var input = el("input", {
+        type: "checkbox", id: id, value: f.id,
+        "aria-labelledby": id + "-label",
+        "aria-describedby": id + "-hint" + (why ? " " + id + "-why" : "")
+      });
       input.checked = !!state.features[f.id];
+
+      var text = [
+        el("span", { class: "toggle-label", id: id + "-label", text: f.label }),
+        el("span", { class: "toggle-hint", id: id + "-hint", text: f.hint })
+      ];
+      // One chip per contributing type: six of the nine type labels contain a
+      // slash, so a comma-joined string reads as an undifferentiated smear.
+      // The chips lose the separators when flattened for the description,
+      // hence the aria-label carrying the sentence form.
+      if (why) {
+        text.push(el("span", {
+          class: "feature-why", id: id + "-why",
+          "aria-label": "Because you selected " + why.join(", ")
+        }, [el("span", { class: "why-lead", text: "Because you selected" })].concat(
+          why.map(function (label) {
+            return el("span", { class: "why-chip", text: label });
+          })
+        )));
+      }
+
       var item = el("li", { class: "feature-item" }, [
         el("label", { class: "toggle", for: id }, [
           input,
-          el("span", { class: "toggle-text" }, [
-            el("span", { class: "toggle-label", text: f.label }),
-            el("span", { class: "toggle-hint", text: f.hint })
-          ])
+          el("span", { class: "toggle-text" }, text)
         ])
       ]);
       list.appendChild(item);
@@ -286,10 +318,15 @@
   function applyTypePreset() {
     // pre-check the union of features suggested by every chosen type,
     // so a chart+map dashboard pre-loads both sets.
+    // Remember which types contributed each pre-check, so step 2 can say why
+    // an item arrived switched on rather than just presenting it as a given.
     var pre = {};
     Object.keys(DATA.types).forEach(function (t) {
-      if (state.types[t]) (DATA.types[t].pre || []).forEach(function (fid) { pre[fid] = true; });
+      if (state.types[t]) (DATA.types[t].pre || []).forEach(function (fid) {
+        (pre[fid] = pre[fid] || []).push(DATA.types[t].label);
+      });
     });
+    state.presetSources = pre;
     DATA.features.forEach(function (f) { state.features[f.id] = !!pre[f.id]; });
   }
 
@@ -332,6 +369,7 @@
       state.platform = "building";
       Object.keys(DATA.types).forEach(function (t) { state.types[t] = (t === "chart"); });
       DATA.features.forEach(function (f) { state.features[f.id] = false; });
+      state.presetSources = {};
       renderStep1();
       showStep(1);
     });

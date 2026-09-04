@@ -118,6 +118,15 @@ h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 0 0 14px; let
 }
 .radio-card-label, .toggle-label { font-weight: 600; display: block; }
 .radio-card-note, .toggle-hint { display: block; color: var(--ink-soft); font-size: 14px; margin-top: 3px; }
+.feature-why {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin-top: 6px; font-size: 13px; color: var(--ink-soft);
+}
+.why-chip {
+  background: var(--accent-soft); color: var(--accent-ink);
+  font-size: 12px; font-weight: 700; letter-spacing: .02em;
+  padding: 2px 8px; border-radius: 999px;
+}
 .radio-card:has(input:checked), .toggle:has(input:checked) {
   border-color: var(--accent); background: var(--accent-soft);
   box-shadow: inset 0 0 0 1px var(--accent);
