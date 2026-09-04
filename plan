@@ -1,0 +1,130 @@
+# WCAG 2.2 AA Triage Tool for Interactive Data Tools — Project Plan
+
+A planning document for a self-assessment tool that helps instructors quickly identify the WCAG 2.2 Level AA requirements that actually apply to a given interactive data tool — charts, dashboards, maps, modeling widgets, and StoryMap-style narratives — without wading through all 55+ AA success criteria.
+
+**Audience:** Instructors in higher education who use or build interactive data tools (widgets or small apps that let students visualize or model data, including geospatially, or move through scrollytelling narratives).
+
+**Standard in scope:** WCAG 2.2, Level AA only.
+
+---
+
+## Guiding principle: gate everything by feature
+
+An interactive data tool has a *feature profile*, and most WCAG 2.2 AA criteria only apply if a given feature is present. The tool's whole job is to take a short feature inventory and return the small, relevant subset of criteria — prioritized and translated into data-visualization language — rather than dumping the full standard on the instructor.
+
+There is a small **baseline set** that applies to any interactive visual that renders content and can be operated. Everything else lives in **feature modules** that switch on only when the instructor confirms the feature is present.
+
+- No video → the captions and audio-description criteria never appear.
+- No drag interaction → the dragging criterion never appears.
+- No map → the geospatial criteria never appear.
+
+The target: an instructor reaches their actual list of obligations in under two minutes.
+
+---
+
+## Core mechanic: a three-part flow
+
+### 1. Frame the project (2 questions)
+
+**Question 1 — Using vs. building.** Are you *using* an existing platform (ArcGIS StoryMaps, Tableau, Flourish, Datawrapper, Desmos, GeoGebra, Observable, kepler.gl) or *building* something custom (D3, Leaflet/MapLibre, a React widget)?
+
+This matters because when you use a platform, much of the technical conformance is the vendor's responsibility, and your obligations collapse down to the authoring choices you actually control.
+
+**Question 2 — Type.** Rough category: chart/dashboard, map/geospatial, or scrollytelling narrative. This pre-loads the modules most likely to be relevant.
+
+### 2. Feature inventory (~10 yes/no toggles)
+
+Does your tool have:
+
+- Color-encoded data
+- Custom interactive controls (sliders, filters, tooltips, zoom)
+- Drag interactions
+- A map
+- Animation, motion, or scroll-triggered transitions
+- Auto-advancing or timed content
+- Video
+- Audio
+- User data entry (typing or selecting values to model)
+- Data tables
+
+Each toggle unlocks a module.
+
+### 3. Output: a filtered, prioritized action list
+
+Not a raw criteria dump. For each applicable criterion, the instructor gets:
+
+- A plain-language statement of what it means **for a data tool specifically**.
+- A concrete **"how to check it"**, including which checks a person must do by hand versus what an automated scanner catches.
+- A **"who owns this"** tag when the instructor is on a third-party platform (vendor vs. author).
+
+---
+
+## The mapping engine (the valuable core)
+
+This is the knowledge the tool encodes: the map from "feature present" to "criteria that switch on," expressed in data-tool terms. Criteria **new in WCAG 2.2** are marked with ★ — these are precisely the ones data tools trip on and that older checklists miss.
+
+| Feature present | Criteria that switch on (2.2 AA) | Data-tool translation |
+|---|---|---|
+| **Baseline — always** | 1.1.1, 1.3.1, 1.3.2, 1.4.3, 1.4.4, 1.4.10, 1.4.11, 2.1.1, 2.1.2, 2.4.3, 2.4.7, 2.4.11 ★, 4.1.2, 4.1.3 | Provide a text alternative for the chart's *message* (not just "bar chart"); make it keyboard-operable; give it a visible focus indicator that sticky headers don't cover; announce dynamic updates to assistive tech |
+| Color-encoded data | 1.4.1, 1.4.11 | Never let hue alone carry meaning — add labels, patterns, or direct labeling; check contrast of series and regions |
+| Custom controls (sliders, filters, tooltips) | 2.5.8 ★, 1.4.13, 4.1.2, 4.1.3 | 24×24 px minimum target size; tooltips must be dismissable and persistent; controls must expose name + role + value to screen readers |
+| Drag interactions | 2.5.7 ★, 2.5.1, 2.5.2 | Every drag (pan a map, drag a slider) needs a single-pointer or keyboard alternative |
+| Map / geospatial | 2.5.7 ★, 2.5.8 ★, 1.4.1, 1.1.1 | Keyboard pan/zoom; adequately sized pins and controls; provide a text or tabular equivalent of what the map conveys |
+| Animation / scrollytelling | 2.2.2, 2.3.1, honor `prefers-reduced-motion` | Pause/stop for auto-motion; no more than 3 flashes per second; manage focus as narrative steps change |
+| Auto-advancing / timed content | 2.2.1, 2.2.2 | Timing must be adjustable or pausable |
+| Video | 1.2.2, 1.2.5, 1.4.2 | Captions plus audio description |
+| Audio | 1.2.1, 1.4.2 | Provide a transcript; no surprise autoplay |
+| User data entry | 1.3.5, 3.3.1, 3.3.2, 3.3.3, 3.3.7 ★ | Label fields; identify errors and suggest fixes; don't re-request information the user already gave |
+| Data tables | 1.3.1, 2.4.6 | Use real header cells with `scope` |
+
+### Why the ★ criteria deserve top billing
+
+The WCAG 2.2 additions are exactly where interactive data tools fail, and where checklists built for 2.1 leave gaps:
+
+- **2.5.7 Dragging Movements** — draggable maps and sliders need a non-drag alternative.
+- **2.5.8 Target Size (Minimum)** — small map pins and dense chart controls routinely fall under 24×24 px.
+- **2.4.11 Focus Not Obscured (Minimum)** — sticky StoryMap chapter headers commonly hide the keyboard focus indicator.
+- **3.3.7 Redundant Entry** — multi-step modeling widgets shouldn't make users re-enter data they've already provided.
+
+---
+
+## Domain modules worth building as first-class concerns
+
+Rather than treat these generically, each gets its own tuned output.
+
+**Charts / dashboards.** The recurring failure is the text alternative. The module should push authors past "scatter plot" toward conveying the actual *finding*, and toward offering the underlying data as a table.
+
+**Geospatial.** Concentrate 2.5.7, 2.5.8, keyboard navigation, and the non-visual equivalent here. Maps are where custom builds fail hardest, so this module should be blunt about how much manual testing is required.
+
+**StoryMaps / scrollytelling.** Focus on focus management across scroll-triggered steps, reduced-motion support, and reading order / sequence. The linear-narrative format lulls authors into thinking it's "just text" when the interaction model is doing a lot of work.
+
+---
+
+## The using-vs-building split
+
+When someone selects a third-party platform, the tool reframes every applicable criterion into two buckets:
+
+- **What the platform handles** — point the instructor to that vendor's VPAT or Accessibility Conformance Report.
+- **What you still own** — for StoryMaps and dashboard tools this is almost always alt text, narrative prose, color choices, and heading structure.
+
+This keeps instructors from either over-worrying about code they can't touch, or assuming the platform makes them fully compliant. It does not: their own content choices can still fail.
+
+---
+
+## Build recommendation (MVP)
+
+A lightweight, fully client-side decision-tree web app — no backend needed. This fits an OER distribution model and lets the tool itself be an accessible artifact that models the standard it teaches.
+
+The entire mapping is a static data structure; the logic is just "show criteria whose feature flag is on, sorted by priority."
+
+**MVP scope:**
+
+1. The three-part flow (frame → inventory → output).
+2. The mapping table as JSON.
+3. A printable / exportable result the instructor can attach to a course or hand to a developer.
+
+---
+
+## Honest limitation to state inside the tool
+
+The tool scopes *which* criteria apply. It does not certify conformance. Conformance still requires human testing — a keyboard walkthrough and a screen-reader pass — because automated scanners catch only around a third of issues, and the hardest parts of interactive data tools (focus management, meaningful alternatives, drag alternatives) are exactly the parts a scanner cannot judge.

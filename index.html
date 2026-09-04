@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WCAG 2.2 AA Triage for Interactive Data Tools</title>
+  <meta name="description" content="A feature-gated self-assessment tool: tell it what your interactive data tool does, and get back the small, relevant subset of WCAG 2.2 Level AA criteria — in data-visualization language.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <p class="kicker">Self-assessment · WCAG 2.2 Level AA</p>
+      <h1>Accessibility Triage for Interactive Data Tools</h1>
+      <p class="lede">
+        Charts, dashboards, maps, modeling widgets, and scrollytelling narratives.
+        Answer a short feature inventory and get back only the AA success criteria that
+        actually apply — translated into data-visualization terms and prioritized.
+      </p>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+
+    <!-- progress -->
+    <nav class="steps" aria-label="Progress">
+      <ol>
+        <li data-step="1" aria-current="step"><span class="num">1</span> Frame</li>
+        <li data-step="2"><span class="num">2</span> Features</li>
+        <li data-step="3"><span class="num">3</span> Your list</li>
+      </ol>
+    </nav>
+
+    <!-- STEP 1: FRAME -->
+    <section id="step-1" class="step-panel" aria-labelledby="s1-h" tabindex="-1">
+      <h2 id="s1-h">Frame the project</h2>
+
+      <fieldset class="q">
+        <legend>1. Are you using an existing platform, or building something custom?</legend>
+        <p class="q-help">
+          When you use a platform, much of the technical conformance is the vendor's
+          responsibility, and your obligations collapse to the authoring choices you control.
+        </p>
+        <div class="radio-grid" id="platform-choices" role="radiogroup" aria-label="Platform"></div>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend>2. What kind of tool is it? Select all that apply.</legend>
+        <p class="q-help">Many tools are several at once — a dashboard with an embedded map, or a scrollytelling story built around charts. This pre-selects the feature modules most likely to be relevant; you can change any of them next.</p>
+        <div class="radio-grid" id="type-choices" role="group" aria-label="Type — select all that apply"></div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="to-step-2">Continue to features</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: FEATURES -->
+    <section id="step-2" class="step-panel" aria-labelledby="s2-h" tabindex="-1" hidden>
+      <h2 id="s2-h">Feature inventory</h2>
+      <p class="section-intro">
+        Toggle on everything your tool does. Each feature you confirm unlocks a small module of
+        criteria. Everything you leave off stays out of your list.
+      </p>
+      <ul class="feature-list" id="feature-list"></ul>
+
+      <div class="actions">
+        <button type="button" class="btn ghost" id="back-to-1">Back</button>
+        <button type="button" class="btn primary" id="to-step-3">See my list</button>
+      </div>
+    </section>
+
+    <!-- STEP 3: OUTPUT -->
+    <section id="step-3" class="step-panel" aria-labelledby="s3-h" tabindex="-1" hidden>
+      <div class="result-head">
+        <h2 id="s3-h">Your WCAG 2.2 AA obligations</h2>
+        <div class="result-tools no-print">
+          <button type="button" class="btn ghost" id="back-to-2">Back to features</button>
+          <button type="button" class="btn" id="print-btn">Print / save as PDF</button>
+          <button type="button" class="btn" id="restart-btn">Start over</button>
+        </div>
+      </div>
+
+      <div id="platform-note" class="callout platform-note"></div>
+
+      <p class="summary" id="result-summary"></p>
+
+      <div id="result-groups"></div>
+
+      <aside class="callout limitation" aria-labelledby="lim-h">
+        <h2 id="lim-h">What this list does and doesn't do</h2>
+        <p>
+          This tool scopes <strong>which</strong> criteria apply to your tool. It does
+          <strong>not</strong> certify conformance. Conformance still requires human testing —
+          a keyboard walkthrough and a screen-reader pass — because automated scanners catch only
+          about a third of issues, and the hardest parts of interactive data tools
+          (focus management, meaningful alternatives, drag alternatives) are exactly the parts a
+          scanner cannot judge.
+        </p>
+      </aside>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>
+        Open educational resource. Runs entirely in your browser — nothing you enter leaves this page.
+        ★ marks criteria new in WCAG 2.2, where interactive data tools most often trip.
+      </p>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
