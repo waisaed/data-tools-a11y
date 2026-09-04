@@ -38,10 +38,14 @@
       <h2 id="s1-h">Frame the project</h2>
 
       <fieldset class="q">
-        <legend>1. Are you using an existing platform, or building something custom?</legend>
+        <legend>1. What are you building it in?</legend>
         <p class="q-help">
-          When you use a platform, much of the technical conformance is the vendor's
-          responsibility, and your obligations collapse to the authoring choices you control.
+          How much shifts to the vendor depends enormously on which one. A hosted builder like
+          ArcGIS StoryMaps settles about half the technical criteria for you. A library or
+          notebook — Leaflet, Jupyter, R Shiny, Observable — leaves nearly all of them yours,
+          because you are the one writing the interface. Your answer doesn't shorten the list
+          below; it labels who owns each item, and "shared" still means you are the one who
+          verifies it.
         </p>
         <div class="radio-grid" id="platform-choices" role="radiogroup" aria-label="Platform"></div>
       </fieldset>
@@ -50,6 +54,27 @@
         <legend>2. What kind of tool is it? Select all that apply.</legend>
         <p class="q-help">Many tools are several at once — a dashboard with an embedded map, or a scrollytelling story built around charts. This pre-selects the feature modules most likely to be relevant; you can change any of them next.</p>
         <div class="radio-grid" id="type-choices" role="group" aria-label="Type — select all that apply"></div>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend>3. Which version of WCAG are you working to?</legend>
+        <p class="q-help">
+          WCAG 2.2 adds four criteria, and all four bear directly on interactive data tools.
+          Leave this on unless the policy you answer to still names 2.1 — some procurement
+          rules and national regulations have not adopted 2.2 yet.
+        </p>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <label class="toggle" for="include-22">
+              <input type="checkbox" id="include-22" checked
+                     aria-labelledby="include-22-label" aria-describedby="include-22-hint">
+              <span class="toggle-text">
+                <span class="toggle-label" id="include-22-label">Include criteria new in WCAG 2.2</span>
+                <span class="toggle-hint" id="include-22-hint">Focus Not Obscured, Dragging Movements, Target Size, and Redundant Entry. Untick to scope the list to WCAG 2.1.</span>
+              </span>
+            </label>
+          </li>
+        </ul>
       </fieldset>
 
       <div class="actions">
@@ -108,7 +133,6 @@
     <div class="wrap">
       <p>
         Open educational resource. Runs entirely in your browser — nothing you enter leaves this page.
-        ★ marks criteria new in WCAG 2.2, where interactive data tools most often trip.
       </p>
     </div>
   </footer>

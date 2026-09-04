@@ -14,7 +14,8 @@
     platform: "building",
     types: {},         // type id -> bool (multi-select; a tool can be several)
     features: {},      // feature id -> bool
-    presetSources: {}  // feature id -> [type labels that pre-checked it]
+    presetSources: {}, // feature id -> [type labels that pre-checked it]
+    includeNew: true   // include the four criteria added in WCAG 2.2
   };
   Object.keys(DATA.types).forEach(function (t) { state.types[t] = (t === "chart"); });
   DATA.features.forEach(function (f) { state.features[f.id] = false; });
@@ -125,7 +126,7 @@
   }
 
   // ---- build the active criteria set ---------------------------------
-  // Priority: ★ (new in 2.2) first, then AA, then A; stable within by id.
+  // Priority: AA before A; stable within by id.
   function collectCriteria() {
     var reasons = {}; // scId -> Set of source labels
     var notes = {};   // scId -> [{ label, text }] context notes from features
@@ -150,11 +151,11 @@
       }
     });
 
-    var ids = Object.keys(reasons);
+    var ids = Object.keys(reasons).filter(function (id) {
+      return state.includeNew || !DATA.criteria[id].isNew;
+    });
     ids.sort(function (a, b) {
       var ca = DATA.criteria[a], cb = DATA.criteria[b];
-      // new-in-2.2 first
-      if (ca.isNew !== cb.isNew) return ca.isNew ? -1 : 1;
       // AA before A (AA is the conformance frontier being taught)
       var la = ca.level === "AA" ? 0 : 1, lb = cb.level === "AA" ? 0 : 1;
       if (la !== lb) return la - lb;
@@ -205,8 +206,9 @@
       ]));
     }
 
+    $("#s3-h").textContent = "Your WCAG " + (state.includeNew ? "2.2" : "2.1") + " AA obligations";
+
     // summary
-    var newCount = items.filter(function (i) { return i.c.isNew; }).length;
     var activeFeatures = DATA.features.filter(function (f) { return state.features[f.id]; })
       .map(function (f) { return f.label; });
     var typeLabels = Object.keys(DATA.types)
@@ -221,49 +223,32 @@
     }));
     summary.appendChild(document.createTextNode(
       " to your " + typePhrase +
-      (activeFeatures.length ? " with " + activeFeatures.join(", ").toLowerCase() : "") +
-      ". " + newCount + " are new in WCAG 2.2 (★) — start there."
+      (activeFeatures.length ? " with " + activeFeatures.join(", ").toLowerCase() : "") + "."
     ));
 
-    // groups: new-in-2.2, then the rest
     var groups = $("#result-groups");
     groups.innerHTML = "";
-
-    var newOnes = items.filter(function (i) { return i.c.isNew; });
-    var rest = items.filter(function (i) { return !i.c.isNew; });
-
-    if (newOnes.length) {
-      groups.appendChild(renderGroup(
-        "New in WCAG 2.2 — where data tools trip ★",
-        "These additions are exactly where interactive data tools fail and older checklists leave gaps. Prioritize them.",
-        newOnes, plat, "group-new"
-      ));
-    }
-    groups.appendChild(renderGroup(
-      "Established criteria (WCAG 2.0 / 2.1)",
-      "Still required for AA, and still commonly missed in data visualizations.",
-      rest, plat, "group-rest"
-    ));
+    groups.appendChild(renderGroup(null, null, items, plat, "group-all"));
   }
 
   function renderGroup(title, blurb, items, plat, cls) {
     var isBuilding = !!plat.custom;
     var section = el("section", { class: "crit-group " + cls });
-    section.appendChild(el("h3", { text: title }));
+    if (title) section.appendChild(el("h3", { text: title }));
     if (blurb) section.appendChild(el("p", { class: "group-blurb", text: blurb }));
 
     var list = el("ol", { class: "crit-list" });
     items.forEach(function (item) {
       var c = item.c;
       var header = el("div", { class: "crit-header" }, [
-        el("span", { class: "crit-id", text: c.id + (c.isNew ? " ★" : "") }),
+        el("span", { class: "crit-id", text: c.id }),
         el("span", { class: "crit-name", text: c.name }),
         el("span", { class: "level-badge level-" + c.level, text: "Level " + c.level })
       ]);
       var badge = ownerBadge(ownerFor(c, plat), isBuilding);
       if (badge) header.appendChild(badge);
 
-      var li = el("li", { class: "crit" + (c.isNew ? " is-new" : "") }, [
+      var li = el("li", { class: "crit" }, [
         header,
         el("p", { class: "crit-plain", text: c.plain })
       ]);
@@ -313,6 +298,7 @@
     document.querySelectorAll('#type-choices input[type="checkbox"]').forEach(function (cb) {
       state.types[cb.value] = cb.checked;
     });
+    state.includeNew = $("#include-22").checked;
   }
 
   function applyTypePreset() {
@@ -370,6 +356,8 @@
       Object.keys(DATA.types).forEach(function (t) { state.types[t] = (t === "chart"); });
       DATA.features.forEach(function (f) { state.features[f.id] = false; });
       state.presetSources = {};
+      state.includeNew = true;
+      $("#include-22").checked = true;
       renderStep1();
       showStep(1);
     });
